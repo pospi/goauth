@@ -15,6 +15,10 @@
 if (!class_exists('pwebframework')) {
 	require_once(dirname(__FILE__) . '/pwebframework/pwebframework.inc.php');
 }
+pwebframework::loadClass('HTTPProxy');
+pwebframework::loadClass('Response');
+pwebframework::loadClass('Request');
+pwebframework::loadClass('Headers');
 
 require_once(dirname(__FILE__) . '/client.class.php');
 require_once(dirname(__FILE__) . '/action.class.php');
