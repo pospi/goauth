@@ -127,4 +127,35 @@ class GOAuthFlow implements ArrayAccess, Iterable
 	public function count() {
 		return count($this->actions);
 	}
+
+	//--------------------------------------------------------------------------
+	//	Helpers
+	//--------------------------------------------------------------------------
+
+	/**
+	 * Return some random data for passing with various requests as nonces
+	 * @return string
+	 */
+	public static function getNonce()
+	{
+		return md5(uniqid(rand(), true));
+	}
+
+	public static function ensureSession()
+	{
+		if (!session_id()) {
+			new Session('goauth');
+		}
+	}
+
+	//--------------------------------------------------------------------------
+	//	Debug layer
+	//--------------------------------------------------------------------------
+
+	private $debug = false;	// ProcessLogger instance used for debugging
+
+	public function enableDebug()
+	{
+		$this->debug = new ProcessLogger();
+	}
 }
