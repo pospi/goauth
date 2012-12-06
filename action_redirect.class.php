@@ -10,16 +10,24 @@ class GOAuthAction_Redirect extends GOAuthAction
 {
 	protected $redirectUrl;			// parameterless endpoint URI
 
-	/**
-	 * Creates a redirect action.
-	 *
-	 * @param	string	$redirectUrl	URL to redirect to (parameterless)
-	 * @param	array	$params			any extra parameters to send with this redirect
-	 */
-	public function __construct($redirectUrl, $params = array())
+	public function __construct($params = array(), $redirectUrl = null)
 	{
-		$this->redirectUrl = $redirectUrl;
+		if ($redirectUrl) {
+			$params['_url'] = $redirectUrl;
+		}
 		$this->setParams($params);
+	}
+
+	/**
+	 * @param	array	$params			Parameters to send with this redirect. Use '_url' to set the URL itself.
+	 */
+	public function setParams($params = array())
+	{
+		if (isset($params['_url'])) {
+			$this->redirectUrl = $params['_url'];
+			unset($params['_url']);
+		}
+		parent::setParams($params);
 	}
 
 	/**
