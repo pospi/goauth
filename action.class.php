@@ -19,17 +19,31 @@ interface IGOAuthAction
 
 abstract class GOAuthAction
 {
+	protected $params = array();	// miscellaneous parameters for the action
+
+	public function __construct($params = array())
+	{
+		$this->setParams($params);
+	}
+
+	/**
+	 * Determines whether this action is final (ie: the last in a chain before a browser redirect,
+	 * final result or some other terminating action within a flow)
+	 */
+	public function isFinal()
+	{
+		return false;
+	}
+
 	//--------------------------------------------------------------------------
 	// basic parameter storage
 	//--------------------------------------------------------------------------
-
-	protected $params = array();	// miscellaneous parameters for the action
 
 	/**
 	 * Sets an array of parameters all at once. Existing params are not cleared first.
 	 * @param	array	$params
 	 */
-	public function setParams($params)
+	public function setParams($params = array())
 	{
 		if (!is_array($params)) {
 			return;
@@ -55,8 +69,6 @@ abstract class GOAuthAction
 
 	public function enableDebug()
 	{
-		pwebframework::loadClass('processlogger');
-
 		$this->debug = new ProcessLogger();
 	}
 }
