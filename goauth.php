@@ -19,9 +19,14 @@ pwebframework::loadClass('HTTPProxy');
 pwebframework::loadClass('Response');
 pwebframework::loadClass('Request');
 pwebframework::loadClass('Headers');
+pwebframework::loadClass('Session');
+pwebframework::loadClass('ProcessLogger');
 
 require_once(dirname(__FILE__) . '/client.class.php');
 require_once(dirname(__FILE__) . '/action.class.php');
 require_once(dirname(__FILE__) . '/action_apicall.class.php');
 require_once(dirname(__FILE__) . '/action_redirect.class.php');
+require_once(dirname(__FILE__) . '/action_redirect_stateful.class.php');
+require_once(dirname(__FILE__) . '/action_check_state.class.php');
+require_once(dirname(__FILE__) . '/action_read_code.class.php');
 require_once(dirname(__FILE__) . '/flow.class.php');
