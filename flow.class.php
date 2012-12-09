@@ -63,7 +63,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 
 		foreach ($this->actions as $i => $action) {
 			if ($startAt !== null && !$started) {
-				if ($action == $startAt) {
+				if ($i == $startAt) {
 					$started = true;
 				}
 				continue;
