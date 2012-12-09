@@ -84,6 +84,15 @@ class GOAuthFlow implements ArrayAccess, Iterator
 		return $params;		// return the result from the terminal action for further processing
 	}
 
+	/**
+	 * Clean up session state after completing an auth flow.
+	 */
+	public function finalize()
+	{
+		unset($_SESSION[self::SESSION_PROGRESS_KEY]);
+		unset($_SESSION[self::SESSION_STATE_KEY]);
+	}
+
 	//--------------------------------------------------------------------------
 	// Array implementation
 	//--------------------------------------------------------------------------
