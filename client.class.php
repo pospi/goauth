@@ -6,21 +6,6 @@
  * @author	Sam Pospischil <pospi@spadgos.com>
  * @since	5 Dec 2012
  */
-interface IGOAuthClient
-{
-	/**
-	 * Performs a request with a remote service's OAuth endpoint
-	 *
-	 * @param  string 	$uri        URI to request
-	 * @param  array  	$getParams  GET parameters to pass
-	 * @param  array  	$postParams POST parameters to pass
-	 * @param  Headers  $headers	any additional headers to pass
-	 *
-	 * @return the raw response from the request, as a string
-	 */
-	protected function realSend($uri, $getParams = array(), $postParams = null, $headers = null);
-}
-
 abstract class GOAuthClient
 {
 	const USER_AGENT = 'gOAuth (https://github.com/pospi/goauth)';
@@ -30,7 +15,7 @@ abstract class GOAuthClient
 	 * @param  int $ver OAuth API version (1 or 2)
 	 * @return string GOAuthClient instance name to use for calling methods
 	 */
-	public static function getClient($ver)
+	public static function getClient($ver = 2)
 	{
 		switch ($ver) {
 			case 1:
@@ -61,9 +46,21 @@ abstract class GOAuthClient
 		if ($this->debug) {
 			$this->debug[] = 'Requesting: ' . $uri;
 		}
-
+trace();
 		return self::realSend($uri, $getParams, $postParams, $headers);
 	}
+
+	/**
+	 * Performs a request with a remote service's OAuth endpoint
+	 *
+	 * @param  string 	$uri        URI to request
+	 * @param  array  	$getParams  GET parameters to pass
+	 * @param  array  	$postParams POST parameters to pass
+	 * @param  Headers  $headers	any additional headers to pass
+	 *
+	 * @return the raw response from the request, as a string
+	 */
+	protected function realSend($uri, $getParams = array(), $postParams = null, $headers = null) {}
 
 	//--------------------------------------------------------------------------
 
