@@ -10,12 +10,30 @@
  * @author	Sam Pospischil <pospi@spadgos.com>
  * @since	5 Dec 2012
  */
-class GOAuthFlow implements ArrayAccess, Iterable
+class GOAuthFlow implements ArrayAccess, Iterator
 {
 	private $actions = array();
 
 	const SESSION_PROGRESS_KEY	= 'goauth_progress';
 	const SESSION_STATE_KEY		= 'goauth_state';
+
+	protected $clientId;
+	protected $clientSecret;
+
+	/**
+	 * Create a new auth flow.
+	 *
+	 * @param string $clientId		Facebook app key
+	 * @param string $clientSecret	Facebook app secret key
+	 * @param mixed  $scope    		single permission or array of permissions to request. @see http://developers.facebook.com/docs/concepts/login/permissions-login-dialog/
+	 */
+	public function __construct($clientId, $clientSecret, $scope = null)
+	{
+		self::ensureSession();
+
+		$this->clientId = $clientId;
+		$this->clientSecret = $clientSecret;
+	}
 
 	/**
 	 * Gets the current progress of the flow (index we are up to in $this->actions)
@@ -27,7 +45,6 @@ class GOAuthFlow implements ArrayAccess, Iterable
 	 */
 	public function getCurrentProgress()
 	{
-		self::ensureSession();
 		return isset($_SESSION[GOAuthFlow::SESSION_PROGRESS_KEY]) ? $_SESSION[GOAuthFlow::SESSION_PROGRESS_KEY] : null;
 	}
 
@@ -59,7 +76,6 @@ class GOAuthFlow implements ArrayAccess, Iterable
 			if ($action->isFinal()) {
 
 				// store the progress we're at in the flow in a session so we can pick it up easily later
-				self::ensureSession();
 				$_SESSION[self::SESSION_PROGRESS_KEY] = $i;
 
 				return $params;
