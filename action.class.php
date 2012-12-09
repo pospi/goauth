@@ -26,6 +26,10 @@ abstract class GOAuthAction
 	{
 		$this->flow = $flow;
 		$this->setParams($params);
+
+		if (GOAuthFlow::DEBUG_ALL) {
+			$this->enableDebug();
+		}
 	}
 
 	/**
@@ -35,6 +39,17 @@ abstract class GOAuthAction
 	public function isFinal()
 	{
 		return false;
+	}
+
+	/**
+	 * Determines whether this action should be resumed after returning to the script.
+	 * Redirects and so forth should return TRUE here, whereas failure cases and so on should return FALSE.
+	 *
+	 * :NOTE: this method is only called when isFinal() == true
+	 */
+	public function shouldResume()
+	{
+		return true;
 	}
 
 	//--------------------------------------------------------------------------

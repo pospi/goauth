@@ -22,6 +22,7 @@ pwebframework::loadClass('Headers');
 pwebframework::loadClass('Session');
 pwebframework::loadClass('ProcessLogger');
 
+require_once(dirname(__FILE__) . '/store.class.php');
 require_once(dirname(__FILE__) . '/client.class.php');
 require_once(dirname(__FILE__) . '/action.class.php');
 require_once(dirname(__FILE__) . '/action_apicall.class.php');

@@ -23,7 +23,9 @@ class GOAuthAction_CheckState extends GOAuthAction
 	 */
 	public function process()
 	{
-		if (!isset($_SESSION[GOAuthFlow::SESSION_STATE_KEY])) {
+		$oldState = $this->flow->storage->getState();
+
+		if ($oldState === null) {
 			$this->valid = false;
 			return false;
 		}
@@ -32,7 +34,7 @@ class GOAuthAction_CheckState extends GOAuthAction
 			$this->params['state_var'] = array($this->params['state_var']);
 		}
 		foreach ($this->params['state_var'] as $state) {
-			if (!isset($_GET[$state]) || !isset($_SESSION[GOAuthFlow::SESSION_STATE_KEY][$state]) || $_GET[$state] != $_SESSION[GOAuthFlow::SESSION_STATE_KEY][$state]) {
+			if (!isset($_GET[$state]) || !isset($oldState[$state]) || $_GET[$state] != $oldState[$state]) {
 				$this->valid = false;
 				return false;
 			}
@@ -46,5 +48,10 @@ class GOAuthAction_CheckState extends GOAuthAction
 	public function isFinal()
 	{
 		return !$this->valid;
+	}
+
+	public function shouldResume()
+	{
+		return $this->valid;
 	}
 }

@@ -20,21 +20,26 @@ class GOAuthAction_Redirect extends GOAuthAction
 	 */
 	public function process()
 	{
-		if (headers_sent()) {
-			return false;
-		}
-
-		// send the redirect header
+		// generate redirection URL
 		$url = $this->params['uri'];
 		if (isset($this->params['get'])) {
 			$url = Request::getURLString($url, $this->params['get']);
 		}
-		$resp = new Response();
 
+		// check for headers sent, and log error if we can't redirect
+		if (headers_sent()) {
+			if ($this->debug) {
+				$this->debug[] = "Unable to redirect to $url: headers already sent";
+			}
+			return false;
+		}
+
+		// send the redirect header
 		if ($this->debug) {
 			$this->debug[] = "Redirecting to " . $url;
 		}
 
+		$resp = new Response();
 		$resp->redirect($url);
 
 		return true;

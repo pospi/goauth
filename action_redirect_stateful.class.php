@@ -23,23 +23,17 @@ class GOAuthAction_RedirectStateful extends GOAuthAction_Redirect
 	 */
 	public function process()
 	{
-		if (headers_sent()) {
-			return false;
-		}
-
 		$ok = parent::process();
 
 		// also store the connection state nonce
-		if ($ok && isset($this->params['state_var'])) {
+		if (isset($this->params['state_var'])) {
 			if (!is_array($this->params['state_var'])) {
 				$this->params['state_var'] = array($this->params['state_var']);
 			}
 
-			$state = array();
 			foreach ($this->params['state_var'] as $k) {
-				$state[$k] = $this->params['get'][$k];
+				$this->flow->storage->setState($k, $this->params['get'][$k]);
 			}
-			$_SESSION[GOAuthFlow::SESSION_STATE_KEY] = $state;
 		}
 
 		return $ok;

@@ -12,10 +12,14 @@
  */
 class GOAuthFlow implements ArrayAccess, Iterator
 {
-	private $actions = array();
+	const DEBUG_ALL = true;
 
-	const SESSION_PROGRESS_KEY	= 'goauth_progress';
-	const SESSION_STATE_KEY		= 'goauth_state';
+	public static $STORAGE_TYPE = 'Session';
+
+	public $storage;		// GOAuthStore instance used to handle session persistence between flow requests
+
+	protected $actions = array();
+	protected $lastProcessedAction = null;
 
 	protected $clientId;
 	protected $clientSecret;
@@ -29,10 +33,14 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	 */
 	public function __construct($clientId, $clientSecret, $scope = null)
 	{
-		self::ensureSession();
-
 		$this->clientId = $clientId;
 		$this->clientSecret = $clientSecret;
+
+		$this->storage = GOAuthStore::getStore(self::$STORAGE_TYPE);
+
+		if (self::DEBUG_ALL) {
+			$this->enableDebug();
+		}
 	}
 
 	/**
@@ -45,7 +53,20 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	 */
 	public function getCurrentProgress()
 	{
-		return isset($_SESSION[GOAuthFlow::SESSION_PROGRESS_KEY]) ? $_SESSION[GOAuthFlow::SESSION_PROGRESS_KEY] : null;
+		return $this->storage->getProgress();
+	}
+
+	/**
+	 * Retrieves the last action processed as part of this flow's execution.
+	 * @return GOAuthAction
+	 */
+	public function getLastAction()
+	{
+		return $this->lastProcessedAction ? $this->actions[$this->lastProcessedAction] : null;
+	}
+	public function getLastActionName()
+	{
+		return $this->lastProcessedAction;
 	}
 
 	/**
@@ -55,11 +76,14 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	 * 			 before doing so as this method will begin a session if one is not already present.
 	 *
 	 * @param  array  $params initial parameters to pass for beginning the flow.
+	 *
+	 * @return	the result of the last flow action, or NULL if no flow actions occurred. Note that some actions may return FALSE to indicate failures.
 	 */
 	public function execute($params = array())
 	{
 		$startAt = $this->getCurrentProgress();
 		$started = false;
+		$processed = false;
 
 		foreach ($this->actions as $i => $action) {
 			if ($startAt !== null && !$started) {
@@ -72,16 +96,23 @@ class GOAuthFlow implements ArrayAccess, Iterator
 			$action->setParams($params);		// pass parameters to first action
 			$params = $action->process();		// use the return value as input to the next action in the flow
 
+			$processed = true;
+			$this->lastProcessedAction = $i;
+
+
 			// if this was a terminal action, jump out
 			if ($action->isFinal()) {
 
 				// store the progress we're at in the flow in a session so we can pick it up easily later
-				$_SESSION[self::SESSION_PROGRESS_KEY] = $i;
+				if ($action->shouldResume()) {
+					$this->storage->setProgress($i);
+
+				}
 
 				return $params;
 			}
 		}
-		return $params;		// return the result from the terminal action for further processing
+		return $processed ? $params : null;		// return the result from the terminal action for further processing, or FALSE if nothing happened
 	}
 
 	/**
@@ -89,8 +120,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	 */
 	public function finalize()
 	{
-		unset($_SESSION[self::SESSION_PROGRESS_KEY]);
-		unset($_SESSION[self::SESSION_STATE_KEY]);
+		$this->storage->clear();
 	}
 
 	//--------------------------------------------------------------------------
@@ -164,13 +194,6 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	public static function getNonce()
 	{
 		return md5(uniqid(rand(), true));
-	}
-
-	public static function ensureSession()
-	{
-		if (!session_id()) {
-			new Session('goauth');
-		}
 	}
 
 	//--------------------------------------------------------------------------
