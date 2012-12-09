@@ -3,8 +3,7 @@
  * Check a redirect return nonce to ensure against CSRF.
  *
  * Parameters:
- * 	state_var	- name of the state variable to read from GET
- * 	state_val	- if provided, compares this value against the stored session value instead of the one located at <state_var>
+ * 	state_var	- name of the state variable(s) to read from GET
  *
  * @package	goauth
  * @author	Sam Pospischil <pospi@spadgos.com>
@@ -29,15 +28,23 @@ class GOAuthAction_CheckState extends GOAuthAction
 			return false;
 		}
 
-		$valToCheck = isset($this->params['state_val']) ? $this->params['state_val'] : $_GET[$this->params['state_var']];
+		if (!is_array($this->params['state_var'])) {
+			$this->params['state_var'] = array($this->params['state_var']);
+		}
+		foreach ($this->params['state_var'] as $state) {
+			if (!isset($_GET[$state]) || !isset($_SESSION[GOAuthFlow::SESSION_STATE_KEY][$state]) || $_GET[$state] != $_SESSION[GOAuthFlow::SESSION_STATE_KEY][$state]) {
+				$this->valid = false;
+				return false;
+			}
+		}
 
-		$this->valid = $_SESSION[GOAuthFlow::SESSION_STATE_KEY] == $valToCheck;
+		$this->valid = true;
 
 		return $this->valid;
 	}
 
 	public function isFinal()
 	{
-		return $this->valid;
+		return !$this->valid;
 	}
 }
