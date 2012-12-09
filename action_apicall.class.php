@@ -34,7 +34,7 @@ class GOAuthAction_APICall extends GOAuthAction
 		$post = isset($this->params['post']) ? $this->params['post'] : null;
 		$headers = isset($this->params['header']) ? $this->params['header'] : null;
 
-		$client = GOAuthClient::getClient($ver);
+		$client = GOAuthClient::getClient($this->params['ver']);
 
 		return $this->getOutput($client->send($this->params['uri'], $get, $post, $headers));
 	}
