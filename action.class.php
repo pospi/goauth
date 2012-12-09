@@ -19,10 +19,12 @@ interface IGOAuthAction
 
 abstract class GOAuthAction
 {
+	protected $flow = null;			// link back to the Flow instance we're a part of
 	protected $params = array();	// miscellaneous parameters for the action
 
-	public function __construct($params = array())
+	public function __construct($flow, $params = array())
 	{
+		$this->flow = $flow;
 		$this->setParams($params);
 	}
 
