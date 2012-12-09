@@ -30,6 +30,11 @@ class GOAuthAction_Redirect extends GOAuthAction
 			$url = Request::getURLString($url, $this->params['get']);
 		}
 		$resp = new Response();
+
+		if ($this->debug) {
+			$this->debug[] = "Redirecting to " . $url;
+		}
+
 		$resp->redirect($url);
 
 		return true;
