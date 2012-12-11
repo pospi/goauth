@@ -14,7 +14,10 @@
  */
 class GOAuthAction_RedirectStateful extends GOAuthAction_Redirect
 {
-	protected $params = array('state_var' => array('state', 'redirect_uri'));
+	public function __construct($flow, $params = array())
+	{
+		parent::__construct($flow, array_merge(array('state_var' => array('state', 'redirect_uri')), $params));
+	}
 
 	/**
 	 * In addition to sending the redirect header, we also store the contents of the state variable in SESSION
