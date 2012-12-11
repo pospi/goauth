@@ -53,24 +53,24 @@ class GOAuthAction_APICall extends GOAuthAction
 
 		$result = null;
 		if ($body) {
-			switch ($this->encoding) {
+			switch ($this->params['encoding']) {
 				case self::ENC_JSON:
 					$result = @json_decode($body, true);
-					break;
-				case self::ENC_FORMDATA:
-					@parse_str($body, $result);
 					break;
 				case self::ENC_XML:
 					if ($this->debug) {
 						$this->debug[] = ":TODO: XML encoding not yet implemented";
 					}
 					break;
+				default:
+					@parse_str($body, $result);
+					break;
 			}
 		}
 
 		// handle API errors
-		if ($this->debug) {
-			$this->debug[] = "Bad response from {$this->endpointUrl}: HTTP " . $responseHeaders->getStatusCode();
+		if ($this->debug && !$responseHeaders->ok()) {
+			$this->debug[] = "Bad response from {$this->params['uri']}: HTTP " . $responseHeaders->getStatusCode();
 		}
 
 		return $result ? $result : $responseHeaders->ok();
