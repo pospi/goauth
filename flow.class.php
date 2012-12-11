@@ -44,7 +44,8 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	}
 
 	/**
-	 * Gets the current progress of the flow (index we are up to in $this->actions)
+	 * Gets the current progress of the flow (index we are up to in $this->actions).
+	 * The flow will be resumed from the action *FOLLOWING* this action upon being run.
 	 *
 	 * :WARNING: if your own code is responsible for initializing sessions, be certain that you don't call this method
 	 * 			 before doing so as this method will begin a session if one is not already present.
@@ -54,6 +55,16 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	public function getCurrentProgress()
 	{
 		return $this->storage->getProgress();
+	}
+
+	/**
+	 * Sets the progress state of the action.
+	 * The flow will be resumed from the action *FOLLOWING* this action upon being run.
+	 * @param scalar $prevAction action from which iteration should pick up
+	 */
+	public function setProgress($prevAction)
+	{
+		$this->storage->setProgress($prevAction);
 	}
 
 	/**
@@ -86,12 +97,14 @@ class GOAuthFlow implements ArrayAccess, Iterator
 		$processed = false;
 
 		foreach ($this->actions as $i => $action) {
-			if ($startAt !== null && !$started) {
+			if ($startAt && !$started) {
 				if ($i == $startAt) {
 					$started = true;
 				}
 				continue;
 			}
+
+			$action->setIndex($i);
 
 			$action->setParams($params, true);		// pass parameters to first action
 			$params = $action->process();		// use the return value as input to the next action in the flow

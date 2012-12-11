@@ -20,7 +20,9 @@ interface IGOAuthAction
 abstract class GOAuthAction
 {
 	protected $flow = null;			// link back to the Flow instance we're a part of
+	protected $flowIndex;			// our key within the flow's array of actions
 	protected $params = array();	// miscellaneous parameters for the action
+
 
 	public function __construct($flow, $params = array())
 	{
@@ -30,6 +32,11 @@ abstract class GOAuthAction
 		if (GOAuthFlow::DEBUG_ALL) {
 			$this->enableDebug();
 		}
+	}
+
+	public function setIndex($i)
+	{
+		$this->flowIndex = $i;
 	}
 
 	/**
