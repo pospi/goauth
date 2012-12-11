@@ -51,7 +51,7 @@ class GOAuthStore_Session extends GOAuthStore
 	public static function ensureSession()
 	{
 		if (!session_id()) {
-			new Session('goauth');
+			session_start();
 		}
 	}
 }
