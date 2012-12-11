@@ -8,30 +8,45 @@
  */
 abstract class GOAuthClient
 {
+	const ENC_JSON = 'json';
+	const ENC_XML = 'xml';
+	const ENC_FORM = 'form';
+
 	const USER_AGENT = 'gOAuth (https://github.com/pospi/goauth)';
 
 	/**
 	 * Loads an appropriate client instance.
-	 * @param  int $ver OAuth API version (1 or 2)
+	 *
+	 * @param  int    $ver		OAuth API version (1 or 2)
+	 * @param  string $encoding	expected response encoding from the service API
+	 *
 	 * @return string GOAuthClient instance name to use for calling methods
 	 */
-	public static function getClient($ver = 2)
+	public static function getClient($ver = 2, $encoding = 'json')
 	{
 		switch ($ver) {
 			case 1:
 				require_once(dirname(__FILE__) . '/client_v1.class.php');
-				return new GOAuthClient_v1();
+				return new GOAuthClient_v1($encoding);
 			case 2:
 				require_once(dirname(__FILE__) . '/client_v2.class.php');
-				return new GOAuthClient_v2();
+				return new GOAuthClient_v2($encoding);
 		}
+	}
+
+	public function __construct($encoding = 'json')
+	{
+		$this->setEncoding($encoding);
 	}
 
 	//--------------------------------------------------------------------------
 
 	protected $endpointUrl;
+	protected $encoding = 'json';
 	protected $getParams = array();
 	protected $postParams = null;
+
+	public $responseHeaders;
 
 	/**
 	 * Inject user-agent header and any other core data before sending underlying request
@@ -47,7 +62,49 @@ abstract class GOAuthClient
 			$this->debug[] = 'Requesting: ' . $uri;
 		}
 
-		return $this->realSend($uri, $getParams, $postParams, $headers);
+		$response = $this->realSend($uri, $getParams, $postParams, $headers);
+		$result = $this->decode($response);
+
+		// log request errors
+		if ($this->debug && !$this->responseHeaders->ok()) {
+			$this->debug[] = "Bad response from {$uri}: HTTP " . $this->responseHeaders->getStatusCode();
+		}
+
+		return $result;
+	}
+
+	public function setEncoding($enc)
+	{
+		$this->encoding = $enc;
+	}
+
+	/**
+	 * Decodes a raw API response body.
+	 */
+	private function decode($response)
+	{
+		$this->responseHeaders = new Headers();
+
+		$body = $this->responseHeaders->parseDocument($response);
+
+		$result = null;
+		if ($body) {
+			switch ($this->encoding) {
+				case GOAuthClient::ENC_FORM:
+					@parse_str($body, $result);
+					break;
+				case GOAuthClient::ENC_XML:
+					if ($this->debug) {
+						$this->debug[] = ":TODO: XML encoding not yet implemented";
+					}
+					break;
+				default:
+					$result = @json_decode($body, true);
+					break;
+			}
+		}
+
+		return $result ? $result : $this->responseHeaders->ok();
 	}
 
 	/**

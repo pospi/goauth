@@ -16,10 +16,6 @@
  */
 class GOAuthAction_APICall extends GOAuthAction
 {
-	const ENC_JSON = 'json';
-	const ENC_XML = 'xml';
-	const ENC_FORM = 'form';
-
 	protected $params = array('ver' => 2);
 
 	/**
@@ -35,44 +31,12 @@ class GOAuthAction_APICall extends GOAuthAction
 		$headers = isset($this->params['header']) ? $this->params['header'] : null;
 
 		$client = GOAuthClient::getClient($this->params['ver']);
-
-		return $this->getOutput($client->send($this->params['uri'], $get, $post, $headers));
-	}
-
-	/**
-	 * Retrieves output parameters from the remote Endpoint, to pass to the action following this one.
-	 *
-	 * @return mixed	the decoded response from the remote API if there was one, or a boolean indicating
-	 *                  the success of the request (based on HTTP status) otherwise.
-	 */
-	final public function getOutput($rawResponse = null)
-	{
-		$responseHeaders = new Headers();
-
-		$body = $responseHeaders->parseDocument($rawResponse);
-
-		$result = null;
-		if ($body) {
-			switch ($this->params['encoding']) {
-				case self::ENC_JSON:
-					$result = @json_decode($body, true);
-					break;
-				case self::ENC_XML:
-					if ($this->debug) {
-						$this->debug[] = ":TODO: XML encoding not yet implemented";
-					}
-					break;
-				default:
-					@parse_str($body, $result);
-					break;
-			}
+		if (isset($this->params['encoding'])) {
+			$client->setEncoding($this->params['encoding']);
 		}
 
-		// handle API errors
-		if ($this->debug && !$responseHeaders->ok()) {
-			$this->debug[] = "Bad response from {$this->params['uri']}: HTTP " . $responseHeaders->getStatusCode();
-		}
+		$result = $client->send($this->params['uri'], $get, $post, $headers);
 
-		return $result ? $result : $responseHeaders->ok();
+		return $result ? $result : $client->responseHeaders->ok();
 	}
 }
