@@ -26,8 +26,6 @@ class GOAuthAction_RedirectStateful extends GOAuthAction_Redirect
 	 */
 	public function process()
 	{
-		$ok = parent::process();
-
 		// also store the connection state nonce
 		if (isset($this->params['state_var'])) {
 			if (!is_array($this->params['state_var'])) {
@@ -39,6 +37,6 @@ class GOAuthAction_RedirectStateful extends GOAuthAction_Redirect
 			}
 		}
 
-		return $ok;
+		return parent::process();
 	}
 }
