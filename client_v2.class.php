@@ -14,7 +14,7 @@ class GOAuthClient_v2 extends GoAuthClient
 		$request->followRedirects(true);
 
 		if ($postParams) {
-			return $request->post($this->postParams, $headers);
+			return $request->post($postParams, $headers);
 		} else {
 			return $request->get($headers);
 		}
