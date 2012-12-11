@@ -47,7 +47,7 @@ abstract class GOAuthClient
 			$this->debug[] = 'Requesting: ' . $uri;
 		}
 
-		return self::realSend($uri, $getParams, $postParams, $headers);
+		return $this->realSend($uri, $getParams, $postParams, $headers);
 	}
 
 	/**
