@@ -112,14 +112,14 @@ class GOAuthFlow implements ArrayAccess, Iterator
 			$processed = true;
 			$this->lastProcessedAction = $i;
 
-
 			// if this was a terminal action, jump out
 			if ($action->isFinal()) {
 
 				// store the progress we're at in the flow in a session so we can pick it up easily later
 				if ($action->shouldResume()) {
 					$this->storage->setProgress($i);
-
+				} else {
+					$this->storage->setProgress(null);
 				}
 
 				return $params;
