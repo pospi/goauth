@@ -57,10 +57,12 @@ class GOAuthAction_Redirect extends GOAuthAction
 
 		$resp->addBlock($this->params['page_content']);
 		if (empty($this->params['delay'])) {
-			$resp->redirect($url);
-		} else {
-			$resp->send();
+			$resp->setHeader('Location', $url);
 		}
+
+		session_write_close();
+		$resp->sendHeaders();
+		echo $resp->getOutput();
 
 		return true;
 	}
