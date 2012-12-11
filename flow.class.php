@@ -14,7 +14,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 {
 	const DEBUG_ALL = true;
 
-	public static $STORAGE_TYPE = 'Session';
+	public static $STORAGE_TYPE = 'session';
 
 	public $storage;		// GOAuthStore instance used to handle session persistence between flow requests
 
@@ -200,7 +200,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	//	Debug layer
 	//--------------------------------------------------------------------------
 
-	private $debug = false;	// ProcessLogger instance used for debugging
+	protected $debug = false;	// ProcessLogger instance used for debugging
 
 	public function enableDebug()
 	{

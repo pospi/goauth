@@ -64,7 +64,7 @@ abstract class GOAuthClient
 
 	//--------------------------------------------------------------------------
 
-	private $debug = false;	// ProcessLogger instance used for debugging
+	protected $debug = false;	// ProcessLogger instance used for debugging
 
 	public function enableDebug()
 	{
