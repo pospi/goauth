@@ -74,7 +74,7 @@ abstract class GOAuthAction
 		if (!is_array($params)) {
 			return;
 		}
-		$this->params = array_merge($this->params, $params);
+		$this->params = array_merge_recursive($this->params, $params);
 	}
 
 	public function clearParams()
