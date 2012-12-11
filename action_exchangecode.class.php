@@ -11,21 +11,11 @@
  */
 class GOAuthAction_ExchangeCode extends GOAuthAction_APICall
 {
-	private $code = null;
-
 	public function setParams($params = array(), $fromPrevAction = false)
 	{
-		if ($fromPrevAction) {
-			$this->code = $params;
-			return;
+		if ($fromPrevAction && !is_array($params)) {
+			$params = array('get' => array('code' => $params));
 		}
 		return parent::setParams($params, $fromPrevAction);
-	}
-
-	protected function getGetParams()
-	{
-		$params = parent::getGetParams();
-		$params['code'] = $this->code;
-		return $params;
 	}
 }
