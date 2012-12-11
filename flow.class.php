@@ -93,7 +93,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 				continue;
 			}
 
-			$action->setParams($params);		// pass parameters to first action
+			$action->setParams($params, true);		// pass parameters to first action
 			$params = $action->process();		// use the return value as input to the next action in the flow
 
 			$processed = true;

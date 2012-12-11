@@ -59,8 +59,10 @@ abstract class GOAuthAction
 	/**
 	 * Sets an array of parameters all at once. Existing params are not cleared first.
 	 * @param	array	$params
+	 * @param	bool	$fromPrevAction	if true, these parameters are being passed
+	 *                             		from the previous action in the flow as it executes.
 	 */
-	public function setParams($params = array())
+	public function setParams($params = array(), $fromPrevAction = false)
 	{
 		if (!is_array($params)) {
 			return;
