@@ -4,7 +4,6 @@
  *
  * Parameters:
  * 	uri		- (required) URI of the service endpoint to request
- * 	ver		- OAuth version of the service (1 or 2)
  * 	get		- array of GET parameters to send
  * 	post	- array of POST parameters to send
  * 	header	- array of header lines, Headers object or header block as a string
@@ -16,7 +15,7 @@
  */
 class GOAuthAction_APICall extends GOAuthAction
 {
-	protected $params = array('ver' => 2);
+	protected $params = array();
 
 	/**
 	 * Process the request action.
