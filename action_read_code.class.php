@@ -18,6 +18,9 @@ class GOAuthAction_ReadCode extends GOAuthAction
 	 */
 	public function process()
 	{
+		if ($this->debug) {
+			$this->debug[] = 'Retrieve request code from URL...';
+		}
 		return isset($_GET[$this->params['code_var']]) ? $_GET[$this->params['code_var']] : null;
 	}
 }

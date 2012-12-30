@@ -36,6 +36,10 @@ class GOAuthAction_APICall extends GOAuthAction
 			$client->setEncoding($this->params['encoding']);
 		}
 
+		if ($this->debug) {
+			$this->debug[] = 'Processing API call @ ' . $this->params['uri'];
+		}
+
 		$result = $client->send($this->params['uri'], $get, $post, $headers);
 
 		$client->setEncoding($currEncoding);

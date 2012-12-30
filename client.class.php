@@ -41,6 +41,10 @@ abstract class GOAuthClient
 		$this->clientId = $clientId;
 		$this->clientSecret = $clientSecret;
 		$this->setEncoding($encoding);
+
+		if (GOAuthFlow::DEBUG_ALL) {
+			$this->enableDebug();
+		}
 	}
 
 	//--------------------------------------------------------------------------
@@ -92,12 +96,12 @@ abstract class GOAuthClient
 		}
 		$headers['User-Agent'] = self::USER_AGENT;
 
-		if ($this->debug) {
-			$this->debug[] = 'Requesting: ' . $uri;
-		}
-
 		if ($this->isAuthed()) {
 			$this->passAccessToken($getParams, $postParams, $headers);
+		}
+
+		if ($this->debug) {
+			$this->debug[] = 'Requesting: ' . $uri . ($getParams ? '?' . http_build_query($getParams) : '');
 		}
 
 		$response = $this->realSend($uri, $getParams, $postParams, $headers);

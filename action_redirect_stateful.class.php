@@ -29,6 +29,10 @@ class GOAuthAction_RedirectStateful extends GOAuthAction_Redirect
 		// :SHONK: we have to store our progress *now*, since the parent action will send a Location: header. Need to think of a better way of handling this.
 		$this->flow->setProgress($this->flowIndex);
 
+		if ($this->debug) {
+			$this->debug[] = 'Storing stateful flow information...';
+		}
+
 		// also store the connection state nonce
 		if (isset($this->params['state_var'])) {
 			if (!is_array($this->params['state_var'])) {

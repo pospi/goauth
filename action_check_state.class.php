@@ -23,9 +23,16 @@ class GOAuthAction_CheckState extends GOAuthAction
 	 */
 	public function process()
 	{
+		if ($this->debug) {
+			$this->debug[] = 'Checking OAuth flow state...';
+		}
+
 		$oldState = $this->flow->storage->getState();
 
 		if ($oldState === null) {
+			if ($this->debug) {
+				$this->debug[] = 'Flow state invalid: no prior state found';
+			}
 			$this->valid = false;
 			return false;
 		}
@@ -35,11 +42,17 @@ class GOAuthAction_CheckState extends GOAuthAction
 		}
 		foreach ($this->params['state_var'] as $state) {
 			if (!isset($_GET[$state]) || !isset($oldState[$state]) || $_GET[$state] != $oldState[$state]) {
+				if ($this->debug) {
+					$this->debug[] = 'Flow state invalid: mismatch!!';
+				}
 				$this->valid = false;
 				return false;
 			}
 		}
 
+		if ($this->debug) {
+			$this->debug[] = 'Flow state OK';
+		}
 		$this->valid = true;
 
 		return $this->valid;
