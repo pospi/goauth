@@ -49,6 +49,7 @@ abstract class GOAuthClient
 
 	protected $clientId;
 	protected $clientSecret;
+	protected $accessToken = null;
 
 	protected $encoding = 'json';
 	protected $getParams = array();
@@ -66,10 +67,25 @@ abstract class GOAuthClient
 		return $this->clientSecret;
 	}
 
+	public function setAccessToken($token)
+	{
+		$this->accessToken = $token;
+	}
+
+	public function getAccessToken()
+	{
+		return $this->accessToken;
+	}
+
+	public function isAuthed()
+	{
+		return $this->getAccessToken() !== null;
+	}
+
 	/**
 	 * Inject user-agent header and any other core data before sending underlying request
 	 */
-	final public function send($uri, $getParams = array(), $postParams = null, $headers = null)
+	final public function send($uri, $getParams = array(), $postParams = array(), $headers = null)
 	{
 		if (!$headers) {
 			$headers = new Headers();
@@ -78,6 +94,10 @@ abstract class GOAuthClient
 
 		if ($this->debug) {
 			$this->debug[] = 'Requesting: ' . $uri;
+		}
+
+		if ($this->isAuthed()) {
+			$this->passAccessToken($getParams, $postParams, $headers);
 		}
 
 		$response = $this->realSend($uri, $getParams, $postParams, $headers);
@@ -89,6 +109,11 @@ abstract class GOAuthClient
 		}
 
 		return $result;
+	}
+
+	protected function passAccessToken(Array &$getParams, Array &$postParams, Headers &$headers)
+	{
+		$getParams['access_token'] = $this->getAccessToken();
 	}
 
 	public function setEncoding($enc)

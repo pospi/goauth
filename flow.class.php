@@ -94,11 +94,14 @@ class GOAuthFlow implements ArrayAccess, Iterator
 		$started = false;
 		$processed = false;
 
+		$remainingToProcess = $this->actions;
+
 		foreach ($this->actions as $i => $action) {
 			if ($startAt && !$started) {
 				if ($i == $startAt) {
 					$started = true;
 				}
+				unset($remainingToProcess[$i]);
 				continue;
 			}
 
@@ -109,6 +112,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 
 			$processed = true;
 			$this->lastProcessedAction = $i;
+			unset($remainingToProcess[$i]);
 
 			// if this was a terminal action, jump out
 			if ($action->isFinal()) {
@@ -123,7 +127,22 @@ class GOAuthFlow implements ArrayAccess, Iterator
 				return $params;
 			}
 		}
+
+		// if we've reached the end of the flow, set the access token from the last action's return value
+		if (!$remainingToProcess) {
+			$this->acceptTokenFromResponse($params);
+		}
+
 		return $processed ? $params : null;		// return the result from the terminal action for further processing, or FALSE if nothing happened
+	}
+
+	/**
+	 * Interprets a response from the service's token exchange endpoint
+	 * and passes the stored access token on to our associated Client instance.
+	 */
+	protected function acceptTokenFromResponse($actionResponse)
+	{
+		$this->client->setAccessToken($actionResponse['access_token']);
 	}
 
 	/**
