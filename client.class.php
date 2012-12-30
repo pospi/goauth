@@ -111,6 +111,12 @@ abstract class GOAuthClient
 		return $result;
 	}
 
+	/**
+	 * Automatically pass the stored access token on with all requests made. This method is only
+	 * called if the Client has been authenticated previously.
+	 *
+	 * Simply append the desired parameter to the desired parameterset for passing with requests!
+	 */
 	protected function passAccessToken(Array &$getParams, Array &$postParams, Headers &$headers)
 	{
 		$getParams['access_token'] = $this->getAccessToken();
