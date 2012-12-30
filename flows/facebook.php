@@ -11,9 +11,6 @@ class FacebookAuthFlow extends GOAuthFlow
 	const ENDPOINT_DIALOG = 'https://www.facebook.com/dialog/oauth';
 	const ENDPOINT_TOKEN = 'https://graph.facebook.com/oauth/access_token';
 
-	protected $clientId;
-	protected $clientSecret;
-
 	/**
 	 * Create a new Facebook auth flow.
 	 *
