@@ -21,8 +21,7 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	protected $actions = array();
 	protected $lastProcessedAction = null;
 
-	protected $clientId;
-	protected $clientSecret;
+	public $client;		// GOAuthClient instance
 
 	/**
 	 * Create a new auth flow.
@@ -31,10 +30,9 @@ class GOAuthFlow implements ArrayAccess, Iterator
 	 * @param string $clientSecret	Facebook app secret key
 	 * @param mixed  $scope    		single permission or array of permissions to request. @see http://developers.facebook.com/docs/concepts/login/permissions-login-dialog/
 	 */
-	public function __construct($clientId, $clientSecret, $scope = null)
+	public function __construct($client, $scope = null)
 	{
-		$this->clientId = $clientId;
-		$this->clientSecret = $clientSecret;
+		$this->client = $client;
 
 		$this->storage = GOAuthStore::getStore(self::$STORAGE_TYPE);
 

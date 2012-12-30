@@ -17,18 +17,17 @@ class FacebookAuthFlow extends GOAuthFlow
 	/**
 	 * Create a new Facebook auth flow.
 	 *
-	 * @param string $clientId		Facebook app key
-	 * @param string $clientSecret	Facebook app secret key
-	 * @param mixed  $scope    		single permission or array of permissions to request. @see http://developers.facebook.com/docs/concepts/login/permissions-login-dialog/
+	 * @param GOAuthClient	$client	gOAuth client instance for connecting to the service
+	 * @param mixed  		$scope  single permission or array of permissions to request. @see http://developers.facebook.com/docs/concepts/login/permissions-login-dialog/
 	 */
-	public function __construct($clientId, $clientSecret, $scope = null)
+	public function __construct($client, $scope = null)
 	{
-		parent::__construct($clientId, $clientSecret, $scope);
+		parent::__construct($client, $scope);
 
 		$redirectParams = array(
 			'uri' => self::ENDPOINT_DIALOG,
 			'get' => array(
-				'client_id'	=> $this->clientId,
+				'client_id'	=> $this->client->getId(),
 				'state'		=> self::getNonce(),
 				'redirect_uri' => Request::getFullURI(),
 			),
@@ -46,8 +45,8 @@ class FacebookAuthFlow extends GOAuthFlow
 		$this['readservicetoken'] = new GOAuthAction_ExchangeCode($this, array(
 			'uri' => self::ENDPOINT_TOKEN,
 			'get' => array(
-				'client_id' => $this->clientId,
-				'client_secret' => $this->clientSecret,
+				'client_id' => $this->client->getId(),
+				'client_secret' => $this->client->getSecret(),
 				'redirect_uri' => $this->storage->getState('redirect_uri'),
 			),
 			'encoding' => GOAuthClient::ENC_FORM,

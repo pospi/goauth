@@ -17,36 +17,54 @@ abstract class GOAuthClient
 	/**
 	 * Loads an appropriate client instance.
 	 *
+	 * @param  string $clientId	Client ID from the OAuth provider
+	 * @param  string $clientSecret	Client secret from the OAuth provider
 	 * @param  int    $ver		OAuth API version (1 or 2)
 	 * @param  string $encoding	expected response encoding from the service API
 	 *
-	 * @return string GOAuthClient instance name to use for calling methods
+	 * @return GOAuthClient
 	 */
-	public static function getClient($ver = 2, $encoding = 'json')
+	public static function getClient($clientId, $clientSecret, $ver = 2, $encoding = 'json')
 	{
 		switch ($ver) {
 			case 1:
 				require_once(dirname(__FILE__) . '/client_v1.class.php');
-				return new GOAuthClient_v1($encoding);
+				return new GOAuthClient_v1($clientId, $clientSecret, $encoding);
 			case 2:
 				require_once(dirname(__FILE__) . '/client_v2.class.php');
-				return new GOAuthClient_v2($encoding);
+				return new GOAuthClient_v2($clientId, $clientSecret, $encoding);
 		}
 	}
 
-	public function __construct($encoding = 'json')
+	public function __construct($clientId, $clientSecret, $encoding = 'json')
 	{
+		$this->clientId = $clientId;
+		$this->clientSecret = $clientSecret;
 		$this->setEncoding($encoding);
 	}
 
 	//--------------------------------------------------------------------------
 
 	protected $endpointUrl;
+
+	protected $clientId;
+	protected $clientSecret;
+
 	protected $encoding = 'json';
 	protected $getParams = array();
 	protected $postParams = null;
 
 	public $responseHeaders;
+
+	public function getId()
+	{
+		return $this->clientId;
+	}
+
+	public function getSecret()
+	{
+		return $this->clientSecret;
+	}
 
 	/**
 	 * Inject user-agent header and any other core data before sending underlying request
