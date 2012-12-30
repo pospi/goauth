@@ -59,6 +59,12 @@ abstract class GOAuthAction
 		return true;
 	}
 
+	// accessor for our associated client
+	public function getClient()
+	{
+		return $this->flow->client;
+	}
+
 	//--------------------------------------------------------------------------
 	// basic parameter storage
 	//--------------------------------------------------------------------------

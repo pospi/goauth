@@ -96,6 +96,11 @@ abstract class GOAuthClient
 		$this->encoding = $enc;
 	}
 
+	public function getEncoding()
+	{
+		return $this->encoding;
+	}
+
 	/**
 	 * Decodes a raw API response body.
 	 */
