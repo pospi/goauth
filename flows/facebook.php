@@ -16,21 +16,22 @@ class FacebookAuthFlow extends GOAuthFlow
 	 *
 	 * @param GOAuthClient	$client	gOAuth client instance for connecting to the service
 	 * @param mixed  		$scope  single permission or array of permissions to request. @see http://developers.facebook.com/docs/concepts/login/permissions-login-dialog/
+	 * @param string $returnURI		URL to return to from the remote service's auth endpoint to continue the process. Defaults to current URI.
 	 */
-	public function __construct($client, $scope = null)
+	public function __construct($client, $scope = null, $returnURI = null)
 	{
-		parent::__construct($client, $scope);
+		parent::__construct($client, $scope, $returnURI);
 
 		$redirectParams = array(
 			'uri' => self::ENDPOINT_DIALOG,
 			'get' => array(
 				'client_id'	=> $this->client->getId(),
 				'state'		=> self::getNonce(),
-				'redirect_uri' => Request::getFullURI(),
+				'redirect_uri' => $this->redirectUri,
 			),
 		);
-		if ($scope) {
-			$redirectParams['get']['scope'] = is_array($scope) ? implode(',', $scope) : $scope;
+		if ($this->scope) {
+			$redirectParams['get']['scope'] = is_array($this->scope) ? implode(',', $this->scope) : $this->scope;
 		}
 
 		$this['beginrequest'] = new GOAuthAction_RedirectStateful($this, $redirectParams);

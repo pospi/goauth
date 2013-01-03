@@ -23,16 +23,22 @@ class GOAuthFlow implements ArrayAccess, Iterator
 
 	public $client;		// GOAuthClient instance
 
+	protected $scope;		// requested access scope
+	protected $redirectUri;	// redirect URI to return to for handling authentication (defaults to current URI)
+
 	/**
 	 * Create a new auth flow.
 	 *
-	 * @param string $clientId		Facebook app key
-	 * @param string $clientSecret	Facebook app secret key
+	 * @param string $client		GOAuthClient instance to authenticate
 	 * @param mixed  $scope    		single permission or array of permissions to request. @see http://developers.facebook.com/docs/concepts/login/permissions-login-dialog/
+	 * @param string $returnURI		URL to return to from the remote service's auth endpoint to continue the process. Defaults to current URI.
 	 */
-	public function __construct($client, $scope = null)
+	public function __construct($client, $scope = null, $returnURI = null)
 	{
 		$this->client = $client;
+
+		$this->scope = $scope;
+		$this->redirectUri = isset($returnURI) ? $returnURI : Request::getFullURI();
 
 		$this->storage = GOAuthStore::getStore(self::$STORAGE_TYPE);
 
