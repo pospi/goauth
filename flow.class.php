@@ -12,7 +12,7 @@
  */
 class GOAuthFlow implements ArrayAccess, Iterator
 {
-	const DEBUG_ALL = true;
+	const DEBUG_ALL = false;
 
 	public static $STORAGE_TYPE = 'session';
 
