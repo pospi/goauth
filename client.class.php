@@ -107,14 +107,25 @@ abstract class GOAuthClient
 		}
 		$headers['User-Agent'] = self::USER_AGENT;
 
+		// filter input
+		if (!is_array($getParams)) {
+			$getParams = $this->parseInput($getParams, $this->requestEncoding);
+		}
+		if (!is_array($postParams)) {
+			$postParams = $this->parseInput($postParams, $this->requestEncoding);
+		}
+
+		// inject access token before sending request
 		if ($this->isAuthed()) {
 			$this->passAccessToken($getParams, $postParams, $headers);
 		}
 
+		// log the request
 		if ($this->debug) {
-			$this->debug[] = 'Requesting: ' . $uri . ($getParams ? '?' . http_build_query($getParams) : '');
+			$this->debug[] = 'Requesting: ' . $uri;
 		}
 
+		// perform request and decode the response
 		$response = $this->realSend($uri, $getParams, $postParams, $headers);
 		$result = $this->decode($response);
 
@@ -125,6 +136,47 @@ abstract class GOAuthClient
 
 		return $result;
 	}
+
+	final public function get($uri, $params = array())
+	{
+		return $this->send($uri, $params);
+	}
+
+	final public function post($uri, $params = array())
+	{
+		return $this->send($uri, array(), $params);
+	}
+
+	private function parseInput($input, $encoding)
+	{
+		if ($input === null) {
+			return array();
+		}
+		switch ($encoding) {
+			case self::ENC_JSON:
+				return json_decode($input, true);
+			case self::ENC_XML:
+				// :TODO:
+				if ($this->debug) $this->debug[] = 'XML implementation not yet completed';
+				return null;
+			default:
+				$paramArray = array();
+				parse_str($input, $paramArray);
+				return $paramArray;
+		}
+	}
+
+	/**
+	 * Performs a request with a remote service's OAuth endpoint. Child classes must implement this method.
+	 *
+	 * @param  string 	$uri        URI to request
+	 * @param  array  	$getParams  GET parameters to pass
+	 * @param  array  	$postParams POST parameters to pass
+	 * @param  Headers  $headers	any additional headers to pass
+	 *
+	 * @return the raw response from the request, as a string
+	 */
+	protected function realSend($uri, $getParams = array(), $postParams = null, $headers = null) {}
 
 	/**
 	 * Automatically pass the stored access token on with all requests made. This method is only
@@ -215,19 +267,8 @@ abstract class GOAuthClient
 		return $result ? $result : $this->responseHeaders->ok();
 	}
 
-	/**
-	 * Performs a request with a remote service's OAuth endpoint
-	 *
-	 * @param  string 	$uri        URI to request
-	 * @param  array  	$getParams  GET parameters to pass
-	 * @param  array  	$postParams POST parameters to pass
-	 * @param  Headers  $headers	any additional headers to pass
-	 *
-	 * @return the raw response from the request, as a string
-	 */
-	protected function realSend($uri, $getParams = array(), $postParams = null, $headers = null) {}
-
 	//--------------------------------------------------------------------------
+	//	Debug
 
 	protected $debug = false;	// ProcessLogger instance used for debugging
 
