@@ -245,13 +245,13 @@ abstract class GOAuthClient
 	{
 		$this->responseHeaders = new Headers();
 
-		$body = $this->responseHeaders->parseDocument($response);
+		$this->rawResponse = $this->responseHeaders->parseDocument($response);
 
 		$result = null;
-		if ($body) {
+		if ($this->rawResponse) {
 			switch ($this->encoding) {
 				case GOAuthClient::ENC_FORM:
-					@parse_str($body, $result);
+					@parse_str($this->rawResponse, $result);
 					break;
 				case GOAuthClient::ENC_XML:
 					if ($this->debug) {
@@ -259,7 +259,7 @@ abstract class GOAuthClient
 					}
 					break;
 				default:
-					$result = @json_decode($body, true);
+					$result = @json_decode($this->rawResponse, true);
 					break;
 			}
 		}
