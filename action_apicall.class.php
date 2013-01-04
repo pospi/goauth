@@ -30,9 +30,9 @@ class GOAuthAction_APICall extends GOAuthAction
 		$headers = isset($this->params['header']) ? $this->params['header'] : null;
 
 		$client = $this->getClient();
-		$currEncoding = $client->getEncoding();
+		$currEncoding = $client->getResponseEncoding();
 		if (isset($this->params['encoding'])) {	// :NOTE: allow this request to be encoded differently to all other client requests
-			$client->setEncoding($this->params['encoding']);
+			$client->setResponseEncoding($this->params['encoding']);
 		}
 
 		if ($this->debug) {
@@ -41,7 +41,7 @@ class GOAuthAction_APICall extends GOAuthAction
 
 		$result = $client->send($this->params['uri'], $get, $post, $headers);
 
-		$client->setEncoding($currEncoding);
+		$client->setResponseEncoding($currEncoding);
 
 		return $result ? $result : $client->responseHeaders->ok();
 	}

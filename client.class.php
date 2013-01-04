@@ -14,33 +14,39 @@ abstract class GOAuthClient
 
 	const USER_AGENT = 'gOAuth (https://github.com/pospi/goauth)';
 
+	//--------------------------------------------------------------------------
+	//	Initialisation
+
 	/**
 	 * Loads an appropriate client instance.
 	 *
-	 * @param  string $clientId	Client ID from the OAuth provider
-	 * @param  string $clientSecret	Client secret from the OAuth provider
-	 * @param  int    $ver		OAuth API version (1 or 2)
-	 * @param  string $encoding	expected response encoding from the service API
+	 * @param  string $clientId			Client ID from the OAuth provider
+	 * @param  string $clientSecret		Client secret from the OAuth provider
+	 * @param  string $responseEncoding	expected response encoding from the service API
+	 * @param  string $requestEncoding	default encoding for requests to the API
+	 * @param  int    $ver				OAuth API version (1 or 2)
 	 *
 	 * @return GOAuthClient
 	 */
-	public static function getClient($clientId, $clientSecret, $ver = 2, $encoding = 'json')
+	public static function getClient($clientId, $clientSecret, $responseEncoding = 'json', $requestEncoding = 'form', $ver = 2)
 	{
 		switch ($ver) {
 			case 1:
 				require_once(dirname(__FILE__) . '/client_v1.class.php');
-				return new GOAuthClient_v1($clientId, $clientSecret, $encoding);
+				return new GOAuthClient_v1($clientId, $clientSecret, $responseEncoding, $requestEncoding);
 			case 2:
 				require_once(dirname(__FILE__) . '/client_v2.class.php');
-				return new GOAuthClient_v2($clientId, $clientSecret, $encoding);
+				return new GOAuthClient_v2($clientId, $clientSecret, $responseEncoding, $requestEncoding);
 		}
 	}
 
-	public function __construct($clientId, $clientSecret, $encoding = 'json')
+	public function __construct($clientId, $clientSecret, $responseEncoding = 'json', $requestEncoding = 'form')
 	{
 		$this->clientId = $clientId;
 		$this->clientSecret = $clientSecret;
-		$this->setEncoding($encoding);
+
+		$this->setResponseEncoding($responseEncoding);
+		$this->setRequestEncoding($requestEncoding);
 
 		if (GOAuthFlow::DEBUG_ALL) {
 			$this->enableDebug();
@@ -48,18 +54,20 @@ abstract class GOAuthClient
 	}
 
 	//--------------------------------------------------------------------------
-
-	protected $endpointUrl;
+	//	Member vars
 
 	protected $clientId;
 	protected $clientSecret;
 	protected $accessToken = null;
 
 	protected $encoding = 'json';
-	protected $getParams = array();
-	protected $postParams = null;
+	protected $requestEncoding = 'form';
 
-	public $responseHeaders;
+	public $responseHeaders;	// headers from the last API request made
+	public $rawResponse;
+
+	//--------------------------------------------------------------------------
+	//	Authentication
 
 	public function getId()
 	{
@@ -85,6 +93,9 @@ abstract class GOAuthClient
 	{
 		return $this->getAccessToken() !== null;
 	}
+
+	//--------------------------------------------------------------------------
+	//	Requests
 
 	/**
 	 * Inject user-agent header and any other core data before sending underlying request
@@ -126,14 +137,53 @@ abstract class GOAuthClient
 		$getParams['access_token'] = $this->getAccessToken();
 	}
 
-	public function setEncoding($enc)
+	//--------------------------------------------------------------------------
+	//	Encoding
+
+	public function setResponseEncoding($enc)
 	{
 		$this->encoding = $enc;
 	}
 
-	public function getEncoding()
+	public function getResponseEncoding()
 	{
 		return $this->encoding;
+	}
+
+	public function setRequestEncoding($enc)
+	{
+		$this->requestEncoding = $enc;
+	}
+
+	public function getRequestEncoding()
+	{
+		return $this->requestEncoding;
+	}
+
+	/**
+	 * Encodes some variables for sending in the request.
+	 * The method of their encoding is determined by $this->requestEncoding by default.
+	 * @param  array	$vars	variables for encoding
+	 * @return string
+	 */
+	protected function encode($input, $encoding = null)
+	{
+		if (!$input) {
+			return '';
+		}
+		if ($encoding === null) {
+			$encoding = $this->requestEncoding;
+		}
+		switch ($encoding) {
+			case self::ENC_JSON:
+				return json_encode($input);
+			case self::ENC_XML:
+				// :TODO:
+				if ($this->debug) $this->debug[] = 'XML implementation not yet completed';
+				return null;
+			default:
+				return http_build_query($input);
+		}
 	}
 
 	/**
