@@ -10,11 +10,11 @@ class GOAuthClient_v2 extends GoAuthClient
 {
 	protected function realSend($uri, $getParams = array(), $postParams = null, $headers = null)
 	{
-		$request = HTTPProxy::getProxy($uri . '?' . Request::getQueryString($getParams));
+		$request = HTTPProxy::getProxy($uri . ($getParams ? '?' . Request::getQueryString($getParams) : ''));
 		$request->followRedirects(true);
 
 		if ($postParams) {
-			return $request->post($postParams, $headers);
+			return $request->post($this->encode($postParams), $headers);
 		} else {
 			return $request->get($headers);
 		}
